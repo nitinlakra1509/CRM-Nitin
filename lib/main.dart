@@ -3,9 +3,6 @@ import 'package:provider/provider.dart';
 import 'models/app_state.dart';
 import 'screens/dashboard_page.dart';
 import 'screens/carts_page.dart';
-import 'screens/admin/admin_dashboard_page.dart';
-import 'screens/user/forgot_password_page.dart';
-import 'screens/user/create_account_page.dart';
 import 'screens/user/user_account_page.dart';
 import 'screens/login_page.dart';
 
@@ -85,77 +82,7 @@ class NitinCRMApp extends StatelessWidget {
         ),
       ),
       themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: const SplashScreen(),
-    );
-  }
-}
-
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
-
-  @override
-  _SplashScreenState createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-    _scaleAnim = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutBack,
-    );
-    _controller.forward();
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: ScaleTransition(
-          scale: _scaleAnim,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircleAvatar(
-                radius: 48,
-                backgroundColor: primaryBlue,
-                child: Icon(Icons.person, size: 56, color: Colors.white),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'APP',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: primaryBlue,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      home: const LoginPage(),
     );
   }
 }
