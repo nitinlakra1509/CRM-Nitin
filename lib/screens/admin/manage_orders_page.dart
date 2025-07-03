@@ -187,15 +187,6 @@ class _ManageOrdersPageState extends State<ManageOrdersPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Filter Row
-                Row(
-                  children: [
-                    Icon(Icons.filter_list, color: primaryBlue),
-                    const SizedBox(width: 8),
-                    Expanded(child: _buildFilterDropdown()),
-                  ],
-                ),
-                const SizedBox(height: 16),
                 // Filter dropdown row
                 Row(
                   children: [
