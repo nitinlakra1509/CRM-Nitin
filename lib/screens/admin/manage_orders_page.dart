@@ -108,28 +108,6 @@ class _ManageOrdersPageState extends State<ManageOrdersPage> {
             ),
             child: Column(
               children: [
-                // Stats Row
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        'Total Orders',
-                        '${appState.allOrders.length}',
-                        Icons.shopping_bag,
-                        Colors.blue,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatCard(
-                        'Revenue',
-                        '₹${appState.getTotalRevenue().toInt()}',
-                        Icons.account_balance_wallet,
-                        Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 16),
                 // Search Bar
                 Container(
