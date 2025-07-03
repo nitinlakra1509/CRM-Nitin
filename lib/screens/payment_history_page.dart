@@ -39,66 +39,84 @@ class _PaymentHistoryPageState extends State<PaymentHistoryPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          // Header Section
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.payment, color: primaryBlue),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Payment History',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: primaryBlue,
+      body: Container(
+        width: double.infinity,
+        child: Column(
+          children: [
+            // Header Section
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.payment, color: primaryBlue),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Payment History',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: primaryBlue,
+                        ),
                       ),
-                    ),
-                    const Spacer(),
-                    _buildFilterDropdown(),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                // Tab Bar
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey[300]!),
-                  ),
-                  child: TabBar(
-                    controller: _tabController,
-                    indicator: BoxDecoration(
-                      color: primaryBlue,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    labelColor: Colors.white,
-                    unselectedLabelColor: primaryBlue,
-                    tabs: const [
-                      Tab(text: 'Transactions'),
-                      Tab(text: 'Analytics'),
+                      const Spacer(),
+                      _buildFilterDropdown(),
                     ],
                   ),
+                  const SizedBox(height: 16),
+                  // Tab Bar
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey[300]!),
+                    ),
+                    child: TabBar(
+                      controller: _tabController,
+                      indicator: BoxDecoration(
+                        color: primaryBlue,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      labelColor: Colors.white,
+                      unselectedLabelColor: primaryBlue,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      tabs: const [
+                        Tab(
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Center(child: Text('Transactions')),
+                          ),
+                        ),
+                        Tab(
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Center(child: Text('Analytics')),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Tab View
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [_buildTransactionsTab(), _buildAnalyticsTab()],
                 ),
-              ],
+              ),
             ),
-          ),
-          // Tab View
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [_buildTransactionsTab(), _buildAnalyticsTab()],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -138,14 +156,17 @@ class _PaymentHistoryPageState extends State<PaymentHistoryPage>
       return _buildEmptyState();
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: transactions.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final transaction = transactions[index];
-        return _buildTransactionCard(transaction);
-      },
+    return Container(
+      width: double.infinity,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: transactions.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          final transaction = transactions[index];
+          return _buildTransactionCard(transaction);
+        },
+      ),
     );
   }
 
@@ -194,7 +215,8 @@ class _PaymentHistoryPageState extends State<PaymentHistoryPage>
       child: InkWell(
         onTap: () => _showTransactionDetails(transaction),
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
+        child: Container(
+          width: double.infinity,
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -305,81 +327,84 @@ class _PaymentHistoryPageState extends State<PaymentHistoryPage>
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Summary Cards
-          Row(
-            children: [
-              Expanded(
-                child: _buildSummaryCard(
-                  'Total Spent',
-                  '₹${analytics['totalSpent']}',
-                  Icons.account_balance_wallet,
-                  Colors.green,
+      child: Container(
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Summary Cards
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSummaryCard(
+                    'Total Spent',
+                    '₹${analytics['totalSpent']}',
+                    Icons.account_balance_wallet,
+                    Colors.green,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildSummaryCard(
-                  'Orders',
-                  '${analytics['totalOrders']}',
-                  Icons.shopping_bag,
-                  Colors.blue,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildSummaryCard(
+                    'Orders',
+                    '${analytics['totalOrders']}',
+                    Icons.shopping_bag,
+                    Colors.blue,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildSummaryCard(
-                  'Average Order',
-                  '₹${analytics['averageOrder']}',
-                  Icons.trending_up,
-                  Colors.orange,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildSummaryCard(
-                  'This Month',
-                  '₹${analytics['thisMonth']}',
-                  Icons.calendar_month,
-                  Colors.purple,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-
-          // Payment Methods Chart
-          const Text(
-            'Payment Methods',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: primaryBlue,
+              ],
             ),
-          ),
-          const SizedBox(height: 12),
-          _buildPaymentMethodsChart(analytics['paymentMethods']),
-
-          const SizedBox(height: 24),
-
-          // Monthly Spending
-          const Text(
-            'Monthly Spending Trend',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: primaryBlue,
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSummaryCard(
+                    'Average Order',
+                    '₹${analytics['averageOrder']}',
+                    Icons.trending_up,
+                    Colors.orange,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildSummaryCard(
+                    'This Month',
+                    '₹${analytics['thisMonth']}',
+                    Icons.calendar_month,
+                    Colors.purple,
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 12),
-          _buildSpendingChart(analytics['monthlyData']),
-        ],
+            const SizedBox(height: 24),
+
+            // Payment Methods Chart
+            const Text(
+              'Payment Methods',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: primaryBlue,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildPaymentMethodsChart(analytics['paymentMethods']),
+
+            const SizedBox(height: 24),
+
+            // Monthly Spending
+            const Text(
+              'Monthly Spending Trend',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: primaryBlue,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildSpendingChart(analytics['monthlyData']),
+          ],
+        ),
       ),
     );
   }
@@ -432,64 +457,85 @@ class _PaymentHistoryPageState extends State<PaymentHistoryPage>
   }
 
   Widget _buildPaymentMethodsChart(Map<String, int> paymentMethods) {
+    if (paymentMethods.isEmpty) {
+      return Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Container(
+          height: 200,
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          child: const Center(
+            child: Text(
+              'No payment data available',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
+      child: Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(16),
         child: Column(
-          children: paymentMethods.entries.map((entry) {
-            final percentage =
-                (entry.value /
-                paymentMethods.values.fold(0, (a, b) => a + b) *
-                100);
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                children: [
-                  Icon(
-                    _getPaymentMethodIcon(entry.key),
-                    size: 20,
-                    color: primaryBlue,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Payment Method Distribution',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: primaryBlue,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ...paymentMethods.entries.map((entry) {
+              final percentage =
+                  (entry.value /
+                  paymentMethods.values.fold(0, (a, b) => a + b) *
+                  100);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Column(
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              entry.key,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              '${entry.value} (${percentage.toStringAsFixed(1)}%)',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
+                        Icon(
+                          _getPaymentMethodIcon(entry.key),
+                          size: 20,
+                          color: primaryBlue,
                         ),
-                        const SizedBox(height: 4),
-                        LinearProgressIndicator(
-                          value: percentage / 100,
-                          backgroundColor: Colors.grey[200],
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            primaryBlue,
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            entry.key,
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                        Text(
+                          '${entry.value} (${percentage.toStringAsFixed(1)}%)',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
+                    const SizedBox(height: 4),
+                    LinearProgressIndicator(
+                      value: percentage / 100,
+                      backgroundColor: Colors.grey[200],
+                      valueColor: AlwaysStoppedAnimation<Color>(primaryBlue),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ],
         ),
       ),
     );
@@ -502,10 +548,21 @@ class _PaymentHistoryPageState extends State<PaymentHistoryPage>
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text(
+              'Monthly Spending Trend',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: primaryBlue,
+              ),
+            ),
+            const SizedBox(height: 16),
             // Simple bar chart representation
             SizedBox(
               height: 200,
+              width: double.infinity,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -515,25 +572,33 @@ class _PaymentHistoryPageState extends State<PaymentHistoryPage>
                       .reduce((a, b) => a > b ? a : b);
                   final height = (data['amount'] as int) / maxAmount * 150;
 
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        '₹${data['amount']}',
-                        style: const TextStyle(fontSize: 10),
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            '₹${((data['amount'] as int) / 1000).toStringAsFixed(0)}k',
+                            style: const TextStyle(fontSize: 10),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            width: double.infinity,
+                            height: height,
+                            decoration: BoxDecoration(
+                              color: primaryBlue,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            data['month'],
+                            style: const TextStyle(fontSize: 10),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Container(
-                        width: 30,
-                        height: height,
-                        decoration: BoxDecoration(
-                          color: primaryBlue,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(data['month'], style: const TextStyle(fontSize: 10)),
-                    ],
+                    ),
                   );
                 }).toList(),
               ),

@@ -12,9 +12,7 @@ class ManageOrdersPage extends StatefulWidget {
   State<ManageOrdersPage> createState() => _ManageOrdersPageState();
 }
 
-class _ManageOrdersPageState extends State<ManageOrdersPage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _ManageOrdersPageState extends State<ManageOrdersPage> {
   String _selectedFilter = 'All';
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
@@ -57,7 +55,6 @@ class _ManageOrdersPageState extends State<ManageOrdersPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 1, vsync: this); // Only one tab now
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text;
@@ -67,7 +64,6 @@ class _ManageOrdersPageState extends State<ManageOrdersPage>
 
   @override
   void dispose() {
-    _tabController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -222,28 +218,15 @@ class _ManageOrdersPageState extends State<ManageOrdersPage>
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Tab Bar with bulk actions
+                // Filter dropdown row
                 Row(
                   children: [
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey[300]!),
-                        ),
-                        child: TabBar(
-                          controller: _tabController,
-                          indicator: BoxDecoration(
-                            color: primaryBlue,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          labelColor: Colors.white,
-                          unselectedLabelColor: primaryBlue,
-                          tabs: const [Tab(text: 'Orders')], // Only Orders tab
-                        ),
-                      ),
+                    const Text(
+                      'Filter by Status:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildFilterDropdown()),
                     const SizedBox(width: 8),
                     IconButton(
                       onPressed: _showBulkActionsDialog,
@@ -260,13 +243,8 @@ class _ManageOrdersPageState extends State<ManageOrdersPage>
               ],
             ),
           ),
-          // Tab View
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [_buildOrdersTab(orders, appState)], // Only Orders tab
-            ),
-          ),
+          // Orders List
+          Expanded(child: _buildOrdersTab(orders, appState)),
         ],
       ),
     );
