@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 
 class Product {
   final String name;
@@ -29,7 +30,6 @@ class CartItem {
   double get totalPrice => (product.price * quantity).toDouble();
 }
 
-// Order and Payment models
 class Order {
   final String orderId;
   final List<Product> products;
@@ -70,11 +70,6 @@ class PaymentTransaction {
   });
 }
 
-class AdBanner {
-  final String imageUrl;
-  AdBanner({required this.imageUrl});
-}
-
 class AppState extends ChangeNotifier {
   final List<CartItem> _cart = [];
   final List<Product> _wishlist = [];
@@ -83,8 +78,8 @@ class AppState extends ChangeNotifier {
   final List<Order> _orders = [];
   final List<PaymentTransaction> _transactions = [];
 
-  // Ad Banners
-  final List<AdBanner> _adBanners = [];
+  // In-memory ad images
+  final List<Uint8List> _adImages = [];
 
   // Sample orders for testing (admin functionality)
   List<Order> get sampleOrders => [
@@ -236,7 +231,7 @@ class AppState extends ChangeNotifier {
   List<String> get categories => List.unmodifiable(_categories);
   List<Order> get orders => List.unmodifiable(_orders);
   List<PaymentTransaction> get transactions => List.unmodifiable(_transactions);
-  List<AdBanner> get adBanners => List.unmodifiable(_adBanners);
+  List<Uint8List> get adImages => List.unmodifiable(_adImages);
 
   bool get isDarkMode => _isDarkMode;
   bool get notificationsEnabled => _notificationsEnabled;
@@ -544,30 +539,39 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  // Ad Banner CRUD
-  void addAdBanner(AdBanner banner) {
-    _adBanners.add(banner);
+  // Ad Image CRUD
+  void addAdImage(Uint8List image) {
+    _adImages.add(image);
     notifyListeners();
   }
 
-  void updateAdBanner(int index, AdBanner updatedBanner) {
-    if (index >= 0 && index < _adBanners.length) {
-      _adBanners[index] = updatedBanner;
+  void updateAdImage(int index, Uint8List image) {
+    if (index >= 0 && index < _adImages.length) {
+      _adImages[index] = image;
       notifyListeners();
     }
   }
 
-  void deleteAdBanner(int index) {
-    if (index >= 0 && index < _adBanners.length) {
-      _adBanners.removeAt(index);
+  void deleteAdImage(int index) {
+    if (index >= 0 && index < _adImages.length) {
+      _adImages.removeAt(index);
       notifyListeners();
     }
   }
 
-  void setAdBanners(List<AdBanner> banners) {
-    _adBanners
+  void setAdImages(List<Uint8List> images) {
+    _adImages
       ..clear()
-      ..addAll(banners);
+      ..addAll(images);
+    notifyListeners();
+  }
+
+  void reorderAdImage(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final item = _adImages.removeAt(oldIndex);
+    _adImages.insert(newIndex, item);
     notifyListeners();
   }
 }
