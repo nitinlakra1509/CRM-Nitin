@@ -1,68 +1,84 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
 
 class ManageAdBannersPage extends StatelessWidget {
   const ManageAdBannersPage({Key? key}) : super(key: key);
 
+  Future<void> _pickAdImage(BuildContext context) async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      final bytes = await picked.readAsBytes();
+      Provider.of<AppState>(context, listen: false).setAdImage(bytes);
+    }
+  }
+
   void _showBannerDialog(
     BuildContext context, {
     int? editIndex,
     AdBanner? banner,
   }) {
-    final _formKey = GlobalKey<FormState>();
-    String imageUrl = banner?.imageUrl ?? '';
+    final appState = Provider.of<AppState>(context, listen: false);
+    Uint8List? adImage = appState.adImage;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(editIndex == null ? 'Create Ad Banner' : 'Edit Ad Banner'),
-        content: Form(
-          key: _formKey,
-          child: SizedBox(
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(
+            editIndex == null ? 'Create Ad Banner' : 'Edit Ad Banner',
+          ),
+          content: SizedBox(
             width: 350,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextFormField(
-                  initialValue: imageUrl,
-                  decoration: const InputDecoration(labelText: 'Image URL'),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'Enter image URL' : null,
-                  onSaved: (v) => imageUrl = v ?? '',
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.image),
+                  label: const Text('Pick Image'),
+                  onPressed: () async {
+                    final picker = ImagePicker();
+                    final picked = await picker.pickImage(
+                      source: ImageSource.gallery,
+                    );
+                    if (picked != null) {
+                      final bytes = await picked.readAsBytes();
+                      setState(() {
+                        adImage = bytes;
+                      });
+                      appState.setAdImage(bytes);
+                    }
+                  },
                 ),
                 const SizedBox(height: 12),
-                if (imageUrl.isNotEmpty)
+                if (adImage != null)
                   SizedBox(
                     height: 120,
-                    child: Image.network(imageUrl, fit: BoxFit.contain),
+                    child: Image.memory(adImage!, fit: BoxFit.contain),
                   ),
               ],
             ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                final adBanner = AdBanner(imageUrl: imageUrl);
-                final appState = Provider.of<AppState>(context, listen: false);
-                if (editIndex == null) {
-                  appState.addAdBanner(adBanner);
-                } else {
-                  appState.updateAdBanner(editIndex, adBanner);
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (adImage != null) {
+                  // You can optionally create a model for in-memory ad banners
+                  // For now, just close dialog after setting image
+                  Navigator.pop(context);
                 }
-                Navigator.pop(context);
-              }
-            },
-            child: Text(editIndex == null ? 'Create' : 'Update'),
-          ),
-        ],
+              },
+              child: Text(editIndex == null ? 'Create' : 'Update'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -73,50 +89,16 @@ class ManageAdBannersPage extends StatelessWidget {
       appBar: AppBar(title: const Text('Manage Ad Banners')),
       body: Consumer<AppState>(
         builder: (context, appState, _) {
-          final banners = appState.adBanners;
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: banners.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, i) {
-              final banner = banners[i];
-              return Card(
-                child: ListTile(
-                  leading: banner.imageUrl.isNotEmpty
-                      ? Image.network(
-                          banner.imageUrl,
-                          width: 120,
-                          height: 60,
-                          fit: BoxFit.cover,
-                        )
-                      : const Icon(Icons.image, size: 40),
-                  title: null,
-                  subtitle: null,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () => _showBannerDialog(
-                          context,
-                          editIndex: i,
-                          banner: banner,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          Provider.of<AppState>(
-                            context,
-                            listen: false,
-                          ).deleteAdBanner(i);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+          final adImage = appState.adImage;
+          return Center(
+            child: adImage != null
+                ? Card(
+                    child: SizedBox(
+                      height: 120,
+                      child: Image.memory(adImage, fit: BoxFit.contain),
+                    ),
+                  )
+                : const Text('No Ad Image Selected'),
           );
         },
       ),

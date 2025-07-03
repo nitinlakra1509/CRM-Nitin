@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 
 class Product {
   final String name;
@@ -568,6 +569,13 @@ class AppState extends ChangeNotifier {
     _adBanners
       ..clear()
       ..addAll(banners);
+    notifyListeners();
+  }
+
+  Uint8List? _adImage;
+  Uint8List? get adImage => _adImage;
+  void setAdImage(Uint8List? image) {
+    _adImage = image;
     notifyListeners();
   }
 }

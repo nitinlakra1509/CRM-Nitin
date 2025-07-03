@@ -69,6 +69,17 @@ class DashboardPage extends StatelessWidget {
           // Ad Banner Carousel
           Consumer<AppState>(
             builder: (context, appState, _) {
+              final adImage = appState.adImage;
+              if (adImage != null) {
+                return SizedBox(
+                  height: 160,
+                  width: double.infinity,
+                  child: Card(
+                    margin: const EdgeInsets.all(8),
+                    child: Image.memory(adImage, fit: BoxFit.cover),
+                  ),
+                );
+              }
               final banners = appState.adBanners;
               if (banners.isEmpty) {
                 // Show visually appealing placeholder carousel if no ads
