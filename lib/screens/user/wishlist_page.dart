@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
 import '../product_detail_screen.dart';
+import '../dashboard_page.dart'; // Import DashboardPage
 
 const primaryBlue = Color(0xFF232F3E);
 const accentYellow = Color.fromARGB(255, 80, 114, 138);
@@ -103,7 +104,15 @@ class WishlistPage extends StatelessWidget {
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              // Navigate to dashboard using Navigator instead of just popping
+              final appState = Provider.of<AppState>(context, listen: false);
+              appState.switchToTab(0); // Switch to home/dashboard (index 0)
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const DashboardPage()),
+              );
+            },
           ),
         ],
       ),
