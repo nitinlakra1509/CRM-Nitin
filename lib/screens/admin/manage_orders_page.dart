@@ -450,7 +450,12 @@ class _ManageOrdersPageState extends State<ManageOrdersPage> {
         onTap: () => _showOrderDetails(order, appState),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.only(
+            left: 40,
+            right: 16,
+            top: 16,
+            bottom: 16,
+          ), // Added left padding
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
