@@ -1,17 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
 import '../models/app_state.dart';
 import 'product_detail_screen.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  late final PageController _bannerController;
+  int _currentBanner = 0;
+  @override
+  void initState() {
+    super.initState();
+    _bannerController = PageController(viewportFraction: 1.0);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startAutoScroll());
+  }
+
+  void _startAutoScroll() async {
+    final appState = Provider.of<AppState>(context, listen: false);
+    while (mounted) {
+      await Future.delayed(const Duration(seconds: 5));
+      final banners = appState.adImages;
+      if (banners.isNotEmpty) {
+        setState(() {
+          _currentBanner = (_currentBanner + 1) % banners.length;
+        });
+        _bannerController.animateToPage(
+          _currentBanner,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _bannerController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
     final products = appState.products;
-    // Map categories to icons for display
     final Map<String, IconData> categoryIcons = {
       'Mobiles': Icons.phone_iphone,
       'Electronics': Icons.laptop,
@@ -21,13 +57,12 @@ class DashboardPage extends StatelessWidget {
       'More': Icons.more_horiz,
     };
     final categories = appState.categories;
-    final PageController _bannerController = PageController(
-      viewportFraction: 1.0,
-    );
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header
           Container(
             color: const Color(0xFF232F3E),
             padding: const EdgeInsets.fromLTRB(16, 40, 16, 16),
@@ -42,8 +77,8 @@ class DashboardPage extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         'Hello, Nitin!',
                         style: TextStyle(
                           color: Colors.white,
@@ -51,8 +86,8 @@ class DashboardPage extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 4),
-                      Text(
+                      const SizedBox(height: 4),
+                      const Text(
                         'Welcome to App',
                         style: TextStyle(color: Colors.white70),
                       ),
@@ -69,20 +104,8 @@ class DashboardPage extends StatelessWidget {
           // Ad Banner Carousel
           Consumer<AppState>(
             builder: (context, appState, _) {
-              final adImage = appState.adImage;
-              if (adImage != null) {
-                return SizedBox(
-                  height: 160,
-                  width: double.infinity,
-                  child: Card(
-                    margin: const EdgeInsets.all(8),
-                    child: Image.memory(adImage, fit: BoxFit.cover),
-                  ),
-                );
-              }
-              final banners = appState.adBanners;
+              final banners = appState.adImages;
               if (banners.isEmpty) {
-                // Show visually appealing placeholder carousel if no ads
                 return SizedBox(
                   height: 160,
                   width: double.infinity,
@@ -111,20 +134,20 @@ class DashboardPage extends StatelessWidget {
                                 color: Colors.blueGrey.shade400,
                               ),
                               const SizedBox(height: 12),
-                              Text(
+                              const Text(
                                 'Your Ad Could Be Here!',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20,
-                                  color: Colors.blueGrey.shade700,
+                                  color: Colors.blueGrey,
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Text(
+                              const Text(
                                 'Promote your products with eye-catching banners.',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.blueGrey.shade500,
+                                  color: Colors.blueGrey,
                                 ),
                               ),
                             ],
@@ -135,7 +158,6 @@ class DashboardPage extends StatelessWidget {
                   ),
                 );
               }
-              // Show real ad banners (image only)
               return SizedBox(
                 height: 160,
                 width: double.infinity,
@@ -144,78 +166,17 @@ class DashboardPage extends StatelessWidget {
                   itemCount: banners.length,
                   itemBuilder: (context, index) {
                     final banner = banners[index];
-                    return Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Shimmer.fromColors(
-                          baseColor: Colors.grey.shade300,
-                          highlightColor: Colors.grey.shade100,
-                          child: Container(color: Colors.grey.shade300),
-                        ),
-                        Image.network(
-                          banner.imageUrl,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Shimmer.fromColors(
-                              baseColor: Colors.grey.shade300,
-                              highlightColor: Colors.grey.shade100,
-                              child: Container(color: Colors.grey.shade300),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                                color: Colors.grey.shade200,
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.broken_image,
-                                    size: 40,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                        ),
-                      ],
+                    return Card(
+                      margin: const EdgeInsets.all(8),
+                      child: Image.memory(banner, fit: BoxFit.cover),
                     );
                   },
                 ),
               );
             },
           ),
-          Container(
-            color: const Color(0xFF232F3E),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Container(
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFF232F3E), width: 1),
-              ),
-              child: Row(
-                children: [
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      decoration: const InputDecoration(
-                        hintText: 'Search products, services...',
-                        border: InputBorder.none,
-                      ),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF232F3E),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.search, color: Color(0xFF232F3E)),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            ),
-          ),
           const SizedBox(height: 8),
+          // Categories
           SizedBox(
             height: 72,
             child: ListView.separated(
@@ -273,6 +234,7 @@ class DashboardPage extends StatelessWidget {
               ),
             ),
           ),
+          // Product Grid
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
