@@ -48,15 +48,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
     final products = appState.products;
-    final Map<String, IconData> categoryIcons = {
-      'Mobiles': Icons.phone_iphone,
-      'Electronics': Icons.laptop,
-      'Home': Icons.chair,
-      'Fashion': Icons.watch,
-      'Sports': Icons.sports_soccer,
-      'More': Icons.more_horiz,
-    };
-    final categories = appState.categories;
+    final categoriesWithIcons = appState.categoriesWithIcons;
 
     return SingleChildScrollView(
       child: Column(
@@ -175,22 +167,121 @@ class _DashboardPageState extends State<DashboardPage> {
               );
             },
           ),
-          const SizedBox(height: 8),
+          // Search Bar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: const Color(0xFF232F3E),
+            child: TextField(
+              onSubmitted: (query) {
+                if (query.isNotEmpty) {
+                  final searchResults = appState.searchProducts(query);
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => Container(
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Search Results: ${searchResults.length} items',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            ],
+                          ),
+                          const Divider(),
+                          Expanded(
+                            child: searchResults.isEmpty
+                                ? const Center(
+                                    child: Text(
+                                      'No products found. Try a different search.',
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  )
+                                : ListView.builder(
+                                    itemCount: searchResults.length,
+                                    itemBuilder: (context, index) {
+                                      final product = searchResults[index];
+                                      return ListTile(
+                                        leading: CircleAvatar(
+                                          backgroundColor: Colors.white,
+                                          child: Icon(
+                                            product.icon,
+                                            color: const Color(0xFF232F3E),
+                                          ),
+                                        ),
+                                        title: Text(product.name),
+                                        subtitle: Text(
+                                          '₹${product.price} • ${product.category}',
+                                          style: const TextStyle(
+                                            color: Color(0xFF232F3E),
+                                          ),
+                                        ),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ProductDetailScreen(
+                                                    product: product,
+                                                  ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+              },
+              decoration: InputDecoration(
+                hintText: 'Search for products...',
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                prefixIcon: const Icon(Icons.search, color: Colors.white),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.2),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+              ),
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+
           // Categories
           SizedBox(
             height: 72,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              itemCount: categories.length,
+              itemCount: categoriesWithIcons.length,
               separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemBuilder: (context, i) => GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          CategoryPage(category: categories[i]),
+                      builder: (context) => CategoryPage(
+                        category: categoriesWithIcons[i]['name'],
+                      ),
                     ),
                   );
                 },
@@ -202,13 +293,13 @@ class _DashboardPageState extends State<DashboardPage> {
                       CircleAvatar(
                         backgroundColor: Colors.white,
                         child: Icon(
-                          categoryIcons[categories[i]] ?? Icons.category,
+                          categoriesWithIcons[i]['icon'] ?? Icons.category,
                           color: const Color(0xFF232F3E),
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        categories[i],
+                        categoriesWithIcons[i]['name'],
                         style: const TextStyle(
                           fontSize: 12,
                           color: Color(0xFF232F3E),

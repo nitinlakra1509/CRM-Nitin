@@ -216,19 +216,44 @@ class AppState extends ChangeNotifier {
   int _selectedTabIndex = 0;
 
   // Categories (shared for admin)
-  final List<String> _categories = [
-    'Mobiles',
-    'Electronics',
-    'Home',
-    'Fashion',
-    'Sports',
-    'More',
+  final List<Map<String, dynamic>> _categories = [
+    {'name': 'Mobiles', 'icon': Icons.phone_android},
+    {'name': 'Electronics', 'icon': Icons.tv},
+    {'name': 'Home', 'icon': Icons.home},
+    {'name': 'Fashion', 'icon': Icons.watch},
+    {'name': 'Sports', 'icon': Icons.sports_soccer},
+    {'name': 'More', 'icon': Icons.more_horiz},
   ];
+
+  List<Map<String, dynamic>> get categoriesWithIcons =>
+      List.unmodifiable(_categories);
+
+  void addCategoryWithIcon(String name, IconData icon) {
+    if (!_categories.any((cat) => cat['name'] == name)) {
+      _categories.add({'name': name, 'icon': icon});
+      notifyListeners();
+    }
+  }
+
+  void editCategory(int index, String newName, IconData newIcon) {
+    if (index >= 0 && index < _categories.length) {
+      _categories[index] = {'name': newName, 'icon': newIcon};
+      notifyListeners();
+    }
+  }
+
+  void removeCategoryWithIcon(String name) {
+    _categories.removeWhere((cat) => cat['name'] == name);
+    // Remove products in this category
+    _products.removeWhere((p) => p.category == name);
+    notifyListeners();
+  }
 
   List<CartItem> get cart => List.unmodifiable(_cart);
   List<Product> get wishlist => List.unmodifiable(_wishlist);
   List<Product> get products => List.unmodifiable(_products);
-  List<String> get categories => List.unmodifiable(_categories);
+  List<String> get categories =>
+      _categories.map((cat) => cat['name'] as String).toList();
   List<Order> get orders => List.unmodifiable(_orders);
   List<PaymentTransaction> get transactions => List.unmodifiable(_transactions);
   List<Uint8List> get adImages => List.unmodifiable(_adImages);
@@ -334,14 +359,15 @@ class AppState extends ChangeNotifier {
   }
 
   // Advanced sync: notify listeners on all product/category changes
-  void addCategory(String name) {
-    if (!_categories.contains(name)) {
-      _categories.add(name);
+  void addCategory(String name, {IconData icon = Icons.category}) {
+    if (!_categories.any((cat) => cat['name'] == name)) {
+      _categories.add({'name': name, 'icon': icon});
       notifyListeners();
     }
   }
 
   void removeCategory(String name) {
+    // ignore: collection_methods_unrelated_type
     _categories.remove(name);
     // Remove products in this category
     _products.removeWhere((p) => p.category == name);

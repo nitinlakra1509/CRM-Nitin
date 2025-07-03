@@ -23,6 +23,14 @@ class _SettingsPageState extends State<SettingsPage> {
             onChanged: (val) {
               appState.notificationsEnabled = val;
             },
+            activeColor: Colors.white,
+            activeTrackColor: const Color(0xFF232F3E),
+            inactiveThumbColor: Colors.white,
+            inactiveTrackColor: Colors.grey.shade300,
+            secondary: const Icon(
+              Icons.notifications,
+              color: Color(0xFF232F3E),
+            ),
           ),
           SwitchListTile(
             title: const Text('Dark Mode'),
@@ -30,6 +38,11 @@ class _SettingsPageState extends State<SettingsPage> {
             onChanged: (val) {
               appState.isDarkMode = val;
             },
+            activeColor: Colors.white,
+            activeTrackColor: const Color(0xFF232F3E),
+            inactiveThumbColor: Colors.white,
+            inactiveTrackColor: Colors.grey.shade300,
+            secondary: const Icon(Icons.dark_mode, color: Color(0xFF232F3E)),
           ),
         ],
       ),
