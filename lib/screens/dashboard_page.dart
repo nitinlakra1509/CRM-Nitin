@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:shimmer/shimmer.dart';
 import '../models/app_state.dart';
+import 'product_detail_screen.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -19,6 +22,9 @@ class DashboardPage extends StatelessWidget {
       'More': Icons.more_horiz,
     };
     final categories = appState.categories;
+    final PageController _bannerController = PageController(
+      viewportFraction: 0.88,
+    );
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,6 +66,154 @@ class DashboardPage extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          // Ad Banner Carousel
+          Consumer<AppState>(
+            builder: (context, appState, _) {
+              final banners = appState.adBanners;
+              final PageController _bannerController = PageController(
+                viewportFraction: 1.0,
+              );
+              if (banners.isEmpty) {
+                // Show visually appealing placeholder carousel if no ads
+                return SizedBox(
+                  height: 160,
+                  width: double.infinity,
+                  child: PageView.builder(
+                    controller: _bannerController,
+                    itemCount: 2,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        // No margin, no border radius, full width/height
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.blueGrey.shade100,
+                              Colors.blueGrey.shade50,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.campaign,
+                                size: 48,
+                                color: Colors.blueGrey.shade400,
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Your Ad Could Be Here!',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  color: Colors.blueGrey.shade700,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Promote your products with eye-catching banners.',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.blueGrey.shade500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }
+              // Show real ad banners
+              return SizedBox(
+                height: 160,
+                width: double.infinity,
+                child: PageView.builder(
+                  controller: _bannerController,
+                  itemCount: banners.length,
+                  itemBuilder: (context, index) {
+                    final banner = banners[index];
+                    return Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Shimmer loader for image
+                        Shimmer.fromColors(
+                          baseColor: Colors.grey.shade300,
+                          highlightColor: Colors.grey.shade100,
+                          child: Container(color: Colors.grey.shade300),
+                        ),
+                        Image.network(
+                          banner.imageUrl,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey.shade300,
+                              highlightColor: Colors.grey.shade100,
+                              child: Container(color: Colors.grey.shade300),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                color: Colors.grey.shade200,
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.broken_image,
+                                    size: 40,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                        ),
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            color: Colors.black.withOpacity(0.35),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    banner.title,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (banner.link.isNotEmpty)
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.open_in_new,
+                                      color: Colors.white,
+                                    ),
+                                    onPressed: () {
+                                      // Open link (implement with url_launcher if needed)
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              );
+            },
           ),
           Container(
             color: const Color(0xFF232F3E),
@@ -167,93 +321,105 @@ class DashboardPage extends StatelessWidget {
               final p = products[i];
               final inCart = appState.isInCart(p);
               final inWishlist = appState.isInWishlist(p);
-              return Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: const BorderSide(color: Color(0xFF232F3E), width: 1),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16.0),
-                      child: Center(
-                        child: CircleAvatar(
-                          radius: 36,
-                          backgroundColor: Colors.white,
-                          child: Icon(
-                            p.icon,
-                            size: 36,
-                            color: const Color(0xFF232F3E),
-                          ),
-                        ),
-                      ),
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductDetailScreen(product: p),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        p.name,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF232F3E),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text(
-                        '₹${p.price}',
-                        style: const TextStyle(
-                          color: Color(0xFF232F3E),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            inWishlist ? Icons.favorite : Icons.favorite_border,
-                            color: inWishlist ? Colors.red : Colors.grey,
-                          ),
-                          onPressed: () {
-                            if (inWishlist) {
-                              appState.removeFromWishlist(p);
-                            } else {
-                              appState.addToWishlist(p);
-                            }
-                          },
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: inCart
-                                    ? Colors.grey
-                                    : const Color(0xFF232F3E),
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                              ),
-                              onPressed: inCart
-                                  ? null
-                                  : () {
-                                      appState.addToCart(p);
-                                    },
-                              child: Text(inCart ? 'In Cart' : 'Add to Cart'),
+                  );
+                },
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Color(0xFF232F3E), width: 1),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: Center(
+                          child: CircleAvatar(
+                            radius: 36,
+                            backgroundColor: Colors.white,
+                            child: Icon(
+                              p.icon,
+                              size: 36,
+                              color: const Color(0xFF232F3E),
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          p.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF232F3E),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          '₹${p.price}',
+                          style: const TextStyle(
+                            color: Color(0xFF232F3E),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              inWishlist
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: inWishlist ? Colors.red : Colors.grey,
+                            ),
+                            onPressed: () {
+                              if (inWishlist) {
+                                appState.removeFromWishlist(p);
+                              } else {
+                                appState.addToWishlist(p);
+                              }
+                            },
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: inCart
+                                      ? Colors.grey
+                                      : const Color(0xFF232F3E),
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                ),
+                                onPressed: inCart
+                                    ? null
+                                    : () {
+                                        appState.addToCart(p);
+                                      },
+                                child: Text(inCart ? 'In Cart' : 'Add to Cart'),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               );
             },

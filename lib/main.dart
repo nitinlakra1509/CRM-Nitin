@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'models/app_state.dart';
 import 'screens/dashboard_page.dart';
 import 'screens/carts_page.dart';
+import 'screens/payment_history_page.dart';
 import 'screens/user/user_account_page.dart';
 import 'screens/login_page.dart';
 
@@ -95,8 +96,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
-
   static final List<Widget> _pages = [
     const DashboardPage(),
     const CartsPage(),
@@ -112,49 +111,80 @@ class _HomePageState extends State<HomePage> {
   ];
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    final appState = Provider.of<AppState>(context, listen: false);
+    appState.switchToTab(index);
   }
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
+    final selectedIndex = appState.selectedTabIndex;
+
     return Scaffold(
-      appBar: _selectedIndex == 0
+      appBar: selectedIndex == 0
           ? null
           : AppBar(
-              title: Text(_titles[_selectedIndex]),
+              title: Text(_titles[selectedIndex]),
               backgroundColor: primaryBlue,
               foregroundColor: Colors.white,
               elevation: 0,
             ),
-      body: _pages[_selectedIndex],
+      body: _pages[selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
+        currentIndex: selectedIndex,
         onTap: _onItemTapped,
         selectedItemColor: accentYellow,
         unselectedItemColor: Colors.white,
         backgroundColor: primaryBlue,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
+            icon: _buildCartIcon(appState),
             label: 'Carts',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.payment), label: 'Payments'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.payment),
+            label: 'Payments',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Account',
+          ),
         ],
         type: BottomNavigationBarType.fixed,
       ),
     );
   }
-}
 
-class PaymentHistoryPage extends StatelessWidget {
-  const PaymentHistoryPage({super.key});
+  Widget _buildCartIcon(AppState appState) {
+    final itemCount = appState.cartItemCount;
 
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text("Payment History will be shown here"));
+    return Stack(
+      children: [
+        const Icon(Icons.shopping_cart),
+        if (itemCount > 0)
+          Positioned(
+            right: 0,
+            top: 0,
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+              child: Text(
+                itemCount > 99 ? '99+' : '$itemCount',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+      ],
+    );
   }
 }

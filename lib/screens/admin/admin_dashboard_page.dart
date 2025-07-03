@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'manage_products_page.dart';
 import 'manage_categories_page.dart';
+import 'manage_orders_page.dart';
 import '../../screens/login_page.dart';
+import 'reports_analytics_page.dart';
+import 'manage_ad_banners_page.dart';
 
 const primaryBlue = Color(0xFF232F3E);
 const accentYellow = Color.fromARGB(255, 80, 114, 138);
@@ -84,17 +87,10 @@ class AdminDashboardPage extends StatelessWidget {
                     label: 'Manage Orders',
                     color: Colors.greenAccent,
                     onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Manage Orders'),
-                          content: const Text('Coming soon!'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('OK'),
-                            ),
-                          ],
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ManageOrdersPage(),
                         ),
                       );
                     },
@@ -124,17 +120,23 @@ class AdminDashboardPage extends StatelessWidget {
                     label: 'Reports & Analytics',
                     color: Colors.tealAccent,
                     onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Reports & Analytics'),
-                          content: const Text('Coming soon!'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('OK'),
-                            ),
-                          ],
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ReportsAnalyticsPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  _AdminTile(
+                    icon: Icons.campaign,
+                    label: 'Manage Ad Banners',
+                    color: Colors.blueAccent,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ManageAdBannersPage(),
                         ),
                       );
                     },
