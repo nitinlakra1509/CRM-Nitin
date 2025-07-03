@@ -72,10 +72,7 @@ class PaymentTransaction {
 
 class AdBanner {
   final String imageUrl;
-  final String title;
-  final String link;
-
-  AdBanner({required this.imageUrl, required this.title, required this.link});
+  AdBanner({required this.imageUrl});
 }
 
 class AppState extends ChangeNotifier {

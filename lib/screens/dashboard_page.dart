@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:shimmer/shimmer.dart';
 import '../models/app_state.dart';
 import 'product_detail_screen.dart';
@@ -23,7 +22,7 @@ class DashboardPage extends StatelessWidget {
     };
     final categories = appState.categories;
     final PageController _bannerController = PageController(
-      viewportFraction: 0.88,
+      viewportFraction: 1.0,
     );
     return SingleChildScrollView(
       child: Column(
@@ -71,9 +70,6 @@ class DashboardPage extends StatelessWidget {
           Consumer<AppState>(
             builder: (context, appState, _) {
               final banners = appState.adBanners;
-              final PageController _bannerController = PageController(
-                viewportFraction: 1.0,
-              );
               if (banners.isEmpty) {
                 // Show visually appealing placeholder carousel if no ads
                 return SizedBox(
@@ -84,7 +80,6 @@ class DashboardPage extends StatelessWidget {
                     itemCount: 2,
                     itemBuilder: (context, index) {
                       return Container(
-                        // No margin, no border radius, full width/height
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -129,7 +124,7 @@ class DashboardPage extends StatelessWidget {
                   ),
                 );
               }
-              // Show real ad banners
+              // Show real ad banners (image only)
               return SizedBox(
                 height: 160,
                 width: double.infinity,
@@ -141,7 +136,6 @@ class DashboardPage extends StatelessWidget {
                     return Stack(
                       fit: StackFit.expand,
                       children: [
-                        // Shimmer loader for image
                         Shimmer.fromColors(
                           baseColor: Colors.grey.shade300,
                           highlightColor: Colors.grey.shade100,
@@ -169,44 +163,6 @@ class DashboardPage extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                        ),
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            color: Colors.black.withOpacity(0.35),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    banner.title,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                if (banner.link.isNotEmpty)
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.open_in_new,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: () {
-                                      // Open link (implement with url_launcher if needed)
-                                    },
-                                  ),
-                              ],
-                            ),
-                          ),
                         ),
                       ],
                     );

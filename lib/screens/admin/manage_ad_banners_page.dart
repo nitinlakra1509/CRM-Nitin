@@ -12,8 +12,6 @@ class ManageAdBannersPage extends StatelessWidget {
   }) {
     final _formKey = GlobalKey<FormState>();
     String imageUrl = banner?.imageUrl ?? '';
-    String title = banner?.title ?? '';
-    String link = banner?.link ?? '';
 
     showDialog(
       context: context,
@@ -34,21 +32,11 @@ class ManageAdBannersPage extends StatelessWidget {
                   onSaved: (v) => imageUrl = v ?? '',
                 ),
                 const SizedBox(height: 12),
-                TextFormField(
-                  initialValue: title,
-                  decoration: const InputDecoration(labelText: 'Title'),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'Enter title' : null,
-                  onSaved: (v) => title = v ?? '',
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  initialValue: link,
-                  decoration: const InputDecoration(labelText: 'Link'),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'Enter link' : null,
-                  onSaved: (v) => link = v ?? '',
-                ),
+                if (imageUrl.isNotEmpty)
+                  SizedBox(
+                    height: 120,
+                    child: Image.network(imageUrl, fit: BoxFit.contain),
+                  ),
               ],
             ),
           ),
@@ -62,11 +50,7 @@ class ManageAdBannersPage extends StatelessWidget {
             onPressed: () {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
-                final adBanner = AdBanner(
-                  imageUrl: imageUrl,
-                  title: title,
-                  link: link,
-                );
+                final adBanner = AdBanner(imageUrl: imageUrl);
                 final appState = Provider.of<AppState>(context, listen: false);
                 if (editIndex == null) {
                   appState.addAdBanner(adBanner);
@@ -101,13 +85,13 @@ class ManageAdBannersPage extends StatelessWidget {
                   leading: banner.imageUrl.isNotEmpty
                       ? Image.network(
                           banner.imageUrl,
-                          width: 60,
+                          width: 120,
                           height: 60,
                           fit: BoxFit.cover,
                         )
                       : const Icon(Icons.image, size: 40),
-                  title: Text(banner.title),
-                  subtitle: Text(banner.link),
+                  title: null,
+                  subtitle: null,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -118,38 +102,15 @@ class ManageAdBannersPage extends StatelessWidget {
                           editIndex: i,
                           banner: banner,
                         ),
-                        tooltip: 'Edit',
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Delete Banner'),
-                              content: const Text(
-                                'Are you sure you want to delete this banner?',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Cancel'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Provider.of<AppState>(
-                                      context,
-                                      listen: false,
-                                    ).deleteAdBanner(i);
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('Delete'),
-                                ),
-                              ],
-                            ),
-                          );
+                          Provider.of<AppState>(
+                            context,
+                            listen: false,
+                          ).deleteAdBanner(i);
                         },
-                        tooltip: 'Delete',
                       ),
                     ],
                   ),
@@ -162,7 +123,7 @@ class ManageAdBannersPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showBannerDialog(context),
         child: const Icon(Icons.add),
-        tooltip: 'Create Ad Banner',
+        tooltip: 'Add Ad Banner',
       ),
     );
   }
