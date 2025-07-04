@@ -458,6 +458,11 @@ class CategoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
     final products = appState.productsByCategory(category);
+    // Find the icon for this category
+    final categoryIcon = appState.categoriesWithIcons.firstWhere(
+      (cat) => cat['name'] == category,
+      orElse: () => {'icon': Icons.category},
+    )['icon'];
     return Scaffold(
       appBar: AppBar(
         title: Text(category),
@@ -471,9 +476,20 @@ class CategoryPage extends StatelessWidget {
               itemBuilder: (context, i) {
                 final p = products[i];
                 return ListTile(
-                  leading: Icon(p.icon, color: const Color(0xFF232F3E)),
+                  leading: Icon(
+                    categoryIcon ?? p.icon,
+                    color: const Color(0xFF232F3E),
+                  ),
                   title: Text(p.name),
                   subtitle: Text('₹${p.price}'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductDetailScreen(product: p),
+                      ),
+                    );
+                  },
                 );
               },
             ),
