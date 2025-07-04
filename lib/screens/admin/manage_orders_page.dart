@@ -149,7 +149,17 @@ class _ManageOrdersPageState extends State<ManageOrdersPage> {
 
   // --- Dialogs and Actions ---
   void _showUpdateStatusDialog(Order order, AppState appState) {
-    final List<String> nextStatuses = _getNextStatuses(order.status);
+    final List<String> allStatuses = [
+      'Pending',
+      'Processing',
+      'Shipped',
+      'Delivered',
+      'Cancelled',
+      'Refunded',
+    ];
+    final List<String> availableStatuses = allStatuses
+        .where((s) => s != order.status)
+        .toList();
 
     showDialog(
       context: context,
@@ -163,15 +173,16 @@ class _ManageOrdersPageState extends State<ManageOrdersPage> {
             const SizedBox(height: 16),
             const Text('Select new status:'),
             const SizedBox(height: 8),
-            ...nextStatuses.map(
+            ...availableStatuses.map(
               (status) => ListTile(
                 leading: Icon(
                   _getStatusIcon(status),
                   color: _getStatusColor(status),
                 ),
                 title: Text(status),
-                onTap: () {
+                onTap: () async {
                   appState.updateOrderStatus(order.orderId, status);
+                  await appState.save();
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -192,19 +203,6 @@ class _ManageOrdersPageState extends State<ManageOrdersPage> {
         ],
       ),
     );
-  }
-
-  List<String> _getNextStatuses(String currentStatus) {
-    switch (currentStatus) {
-      case 'Pending':
-        return ['Processing', 'Cancelled'];
-      case 'Processing':
-        return ['Shipped', 'Cancelled'];
-      case 'Shipped':
-        return ['Delivered'];
-      default:
-        return [];
-    }
   }
 
   void _showOrderDetails(Order order, AppState appState) {
@@ -346,6 +344,14 @@ class _ManageOrdersPageState extends State<ManageOrdersPage> {
 
   // --- Bulk Actions ---
   void _showBulkActionsDialog() {
+    final List<String> allStatuses = [
+      'Pending',
+      'Processing',
+      'Shipped',
+      'Delivered',
+      'Cancelled',
+      'Refunded',
+    ];
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -353,22 +359,20 @@ class _ManageOrdersPageState extends State<ManageOrdersPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.check_circle, color: Colors.green),
-              title: const Text('Mark All Pending as Processing'),
-              onTap: () {
-                Navigator.pop(context);
-                _bulkUpdateStatus('Pending', 'Processing');
-              },
+            ...allStatuses.map(
+              (status) => ListTile(
+                leading: Icon(
+                  _getStatusIcon(status),
+                  color: _getStatusColor(status),
+                ),
+                title: Text('Set all to $status'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _bulkUpdateAllToStatus(status);
+                },
+              ),
             ),
-            ListTile(
-              leading: const Icon(Icons.local_shipping, color: Colors.blue),
-              title: const Text('Mark All Processing as Shipped'),
-              onTap: () {
-                Navigator.pop(context);
-                _bulkUpdateStatus('Processing', 'Shipped');
-              },
-            ),
+            const Divider(),
             ListTile(
               leading: const Icon(Icons.download, color: Colors.purple),
               title: const Text('Export Orders to CSV'),
@@ -389,19 +393,20 @@ class _ManageOrdersPageState extends State<ManageOrdersPage> {
     );
   }
 
-  void _bulkUpdateStatus(String fromStatus, String toStatus) {
+  void _bulkUpdateAllToStatus(String toStatus) async {
     final appState = Provider.of<AppState>(context, listen: false);
-    final orders = appState.getOrdersByStatus(fromStatus);
-
+    final orders = _selectedOrderIds.isNotEmpty
+        ? appState.orders
+              .where((o) => _selectedOrderIds.contains(o.orderId))
+              .toList()
+        : appState.orders;
     for (final order in orders) {
       appState.updateOrderStatus(order.orderId, toStatus);
     }
-
+    await appState.save();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          'Updated ${orders.length} orders from $fromStatus to $toStatus',
-        ),
+        content: Text('Updated ${orders.length} orders to $toStatus'),
         backgroundColor: Colors.green,
       ),
     );

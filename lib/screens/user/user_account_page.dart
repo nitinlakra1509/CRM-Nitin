@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'edit_profile_page.dart';
 import 'change_password_page.dart';
-import 'order_history_page.dart';
 import 'wishlist_page.dart';
 import 'settings_page.dart';
 import 'help_support_page.dart';
@@ -57,18 +56,6 @@ class UserAccountPage extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const ChangePasswordPage(),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.history, color: Color(0xFF232F3E)),
-            title: const Text('Order History'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const OrderHistoryPage(),
                 ),
               );
             },

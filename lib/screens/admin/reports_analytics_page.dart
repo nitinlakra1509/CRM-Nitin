@@ -250,7 +250,7 @@ class ReportsAnalyticsPage extends StatelessWidget {
     final revenues = months.map((month) {
       final start = DateTime(month.year, month.month, 1);
       final end = DateTime(month.year, month.month + 1, 1);
-      final revenue = appState.allOrders
+      final revenue = appState.orders
           .where(
             (order) =>
                 order.orderDate.isAfter(
@@ -318,7 +318,7 @@ class ReportsAnalyticsPage extends StatelessWidget {
 
   Widget _buildPaymentMethodChart(AppState appState) {
     final methodCounts = <String, int>{};
-    for (final order in appState.allOrders) {
+    for (final order in appState.orders) {
       if (order.status != 'Cancelled' && order.status != 'Refunded') {
         methodCounts[order.paymentMethod] =
             (methodCounts[order.paymentMethod] ?? 0) + 1;

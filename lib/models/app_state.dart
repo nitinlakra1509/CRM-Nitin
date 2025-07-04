@@ -81,58 +81,6 @@ class AppState extends ChangeNotifier {
   // In-memory ad images
   final List<Uint8List> _adImages = [];
 
-  // Sample orders for testing (admin functionality)
-  List<Order> get sampleOrders => [
-    Order(
-      orderId: 'ORD001',
-      products: [_products[0]], // iPhone 15 Pro
-      totalAmount: 129999.0,
-      orderDate: DateTime.now().subtract(const Duration(days: 2)),
-      status: 'Pending',
-      paymentMethod: 'Credit Card',
-      deliveryAddress: '123 Main St, City, State',
-    ),
-    Order(
-      orderId: 'ORD002',
-      products: [_products[1], _products[2]], // Sony Headphones + MacBook Air
-      totalAmount: 107998.0,
-      orderDate: DateTime.now().subtract(const Duration(days: 1)),
-      status: 'Processing',
-      paymentMethod: 'UPI',
-      deliveryAddress: '456 Oak Ave, City, State',
-    ),
-    Order(
-      orderId: 'ORD003',
-      products: [_products[3]], // Smart Speaker
-      totalAmount: 4999.0,
-      orderDate: DateTime.now().subtract(const Duration(hours: 12)),
-      status: 'Shipped',
-      paymentMethod: 'Debit Card',
-      deliveryAddress: '789 Pine Rd, City, State',
-    ),
-    Order(
-      orderId: 'ORD004',
-      products: [_products[4]], // Nike Shoes
-      totalAmount: 2999.0,
-      orderDate: DateTime.now().subtract(const Duration(hours: 6)),
-      status: 'Delivered',
-      paymentMethod: 'Cash on Delivery',
-      deliveryAddress: '321 Elm St, City, State',
-    ),
-    Order(
-      orderId: 'ORD005',
-      products: [_products[0], _products[1]], // iPhone + Headphones
-      totalAmount: 137998.0,
-      orderDate: DateTime.now().subtract(const Duration(hours: 3)),
-      status: 'Cancelled',
-      paymentMethod: 'Net Banking',
-      deliveryAddress: '654 Maple Dr, City, State',
-    ),
-  ];
-
-  // Combined orders for admin view
-  List<Order> get allOrders => [..._orders, ...sampleOrders];
-
   // Products (shared for admin and user)
   final List<Product> _products = [
     Product(
@@ -403,12 +351,31 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  void updateTransactionStatus(String transactionId, String newStatus) {
+    final idx = _transactions.indexWhere(
+      (t) => t.transactionId == transactionId,
+    );
+    if (idx != -1) {
+      final oldTxn = _transactions[idx];
+      _transactions[idx] = PaymentTransaction(
+        transactionId: oldTxn.transactionId,
+        orderId: oldTxn.orderId,
+        amount: oldTxn.amount,
+        date: oldTxn.date,
+        status: newStatus,
+        paymentMethod: oldTxn.paymentMethod,
+        products: oldTxn.products,
+      );
+      notifyListeners();
+    }
+  }
+
   // Filter orders by status
   List<Order> getOrdersByStatus(String status) {
     if (status == 'All') {
-      return allOrders;
+      return orders;
     }
-    return allOrders.where((order) => order.status == status).toList();
+    return orders.where((order) => order.status == status).toList();
   }
 
   // Get order statistics for admin analytics
@@ -422,14 +389,14 @@ class AppState extends ChangeNotifier {
       'Cancelled',
       'Refunded',
     ]) {
-      stats[status] = allOrders.where((order) => order.status == status).length;
+      stats[status] = orders.where((order) => order.status == status).length;
     }
     return stats;
   }
 
   // Get revenue analytics
   double getTotalRevenue() {
-    return allOrders
+    return orders
         .where(
           (order) => order.status != 'Cancelled' && order.status != 'Refunded',
         )
@@ -439,7 +406,7 @@ class AppState extends ChangeNotifier {
   double getMonthlyRevenue() {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
-    return allOrders
+    return orders
         .where(
           (order) =>
               order.orderDate.isAfter(startOfMonth) &&
@@ -452,7 +419,7 @@ class AppState extends ChangeNotifier {
   // Get top selling products
   List<Map<String, dynamic>> getTopProducts() {
     final productCounts = <String, int>{};
-    for (final order in allOrders) {
+    for (final order in orders) {
       if (order.status != 'Cancelled' && order.status != 'Refunded') {
         for (final product in order.products) {
           productCounts[product.name] = (productCounts[product.name] ?? 0) + 1;
@@ -599,5 +566,12 @@ class AppState extends ChangeNotifier {
     final item = _adImages.removeAt(oldIndex);
     _adImages.insert(newIndex, item);
     notifyListeners();
+  }
+
+  /// Persists the current state (orders, transactions, etc.) to storage.
+  /// TODO: Implement actual persistence logic (e.g., Hive, SharedPreferences, SQLite).
+  Future<void> save() async {
+    // Add your persistence logic here.
+    // For now, this is just a stub for compatibility.
   }
 }

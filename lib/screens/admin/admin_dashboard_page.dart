@@ -141,6 +141,46 @@ class AdminDashboardPage extends StatelessWidget {
                       );
                     },
                   ),
+                  _AdminTile(
+                    icon: Icons.receipt_long,
+                    label: 'Transactions',
+                    color: Colors.deepOrangeAccent,
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Transactions'),
+                          content: const Text('Coming soon!'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  _AdminTile(
+                    icon: Icons.support_agent,
+                    label: 'Tickets',
+                    color: Colors.redAccent,
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Tickets'),
+                          content: const Text('Coming soon!'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),

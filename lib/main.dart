@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'models/app_state.dart';
 import 'screens/dashboard_page.dart';
 import 'screens/carts_page.dart';
-import 'screens/payment_history_page.dart';
+import 'screens/payment_history_page.dart'; // We'll rename this file later
 import 'screens/user/user_account_page.dart';
 import 'screens/login_page.dart';
 
@@ -106,7 +106,7 @@ class _HomePageState extends State<HomePage> {
   static const List<String> _titles = [
     '', // Dashboard has no AppBar
     'Carts',
-    'Payments',
+    'Orders',
     'Account',
   ];
 
@@ -143,8 +143,8 @@ class _HomePageState extends State<HomePage> {
             label: 'Carts',
           ),
           const BottomNavigationBarItem(
-            icon: Icon(Icons.payment),
-            label: 'Payments',
+            icon: Icon(Icons.shopping_bag_outlined),
+            label: 'Orders',
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.person),
